@@ -3,11 +3,16 @@ import { computed } from 'vue'
 import type { WeatherResponse } from '@/types/weather'
 import ForecastRow from './ForecastRow.vue'
 import WeatherIcon from './WeatherIcon.vue'
+import WeatherDetails from './WeatherDetails.vue'
+import TemperatureChart from './TemperatureChart.vue'
 import { getWeatherInfo } from '@/utils/weatherCode'
+import { useUnit } from '@/composables/useUnit'
 
 const props = defineProps<{
   weather: WeatherResponse
 }>()
+
+const { convert, symbol } = useUnit()
 
 function formatCurrentTime(timeStr: string): string {
   const [datePart, timePart] = timeStr.split('T')
@@ -29,6 +34,7 @@ function formatCurrentDate(timeStr: string): string {
 const currentTime = computed(() => formatCurrentTime(props.weather.current.time))
 const currentDate = computed(() => formatCurrentDate(props.weather.current.time))
 const currentCondition = computed(() => getWeatherInfo(props.weather.current.weatherCode))
+const displayTemp = computed(() => convert(props.weather.current.temperature).toFixed(1))
 </script>
 
 <template>
@@ -50,9 +56,9 @@ const currentCondition = computed(() => getWeatherInfo(props.weather.current.wea
         <div>
           <div class="flex items-end gap-3">
             <p class="text-7xl font-semibold tracking-tight text-gradient">
-              {{ weather.current.temperature.toFixed(1) }}
+              {{ displayTemp }}
             </p>
-            <p class="mb-2 text-2xl font-medium text-muted">{{ weather.current.unit }}</p>
+            <p class="mb-2 text-2xl font-medium text-muted">{{ symbol() }}</p>
           </div>
         </div>
         <div class="text-right">
@@ -75,6 +81,16 @@ const currentCondition = computed(() => getWeatherInfo(props.weather.current.wea
           {{ currentDate }}
         </p>
       </div>
+    </div>
+
+    <TemperatureChart v-if="weather.hourly.length" :hourly="weather.hourly" />
+
+    <div class="space-y-3">
+      <div class="flex items-center gap-3 px-1">
+        <h3 class="text-sm font-medium text-subtle">Detalhes</h3>
+        <div class="h-px flex-1 bg-gray-100 dark:bg-white/[0.06]" />
+      </div>
+      <WeatherDetails :details="weather.details" />
     </div>
 
     <div class="animate-fade-in-delay space-y-4">

@@ -3,11 +3,14 @@ import { computed } from 'vue'
 import type { DailyForecast } from '@/types/weather'
 import WeatherIcon from './WeatherIcon.vue'
 import { getWeatherInfo } from '@/utils/weatherCode'
+import { useUnit } from '@/composables/useUnit'
 
 const props = defineProps<{
   forecast: DailyForecast
   index: number
 }>()
+
+const { convert, symbol } = useUnit()
 
 function formatDate(dateStr: string): { weekday: string; dayMonth: string } {
   const [year, month, day] = dateStr.split('-').map(Number)
@@ -28,6 +31,8 @@ const delayStyle = computed(() => ({
 
 const formatted = computed(() => formatDate(props.forecast.date))
 const condition = computed(() => getWeatherInfo(props.forecast.weatherCode))
+const displayMin = computed(() => convert(props.forecast.temperatureMin).toFixed(0))
+const displayMax = computed(() => convert(props.forecast.temperatureMax).toFixed(0))
 </script>
 
 <template>
@@ -49,9 +54,9 @@ const condition = computed(() => getWeatherInfo(props.forecast.weatherCode))
     </div>
 
     <div class="flex items-center gap-4">
-      <span class="text-sm font-medium text-blue-600/80 dark:text-blue-400/80">{{ forecast.temperatureMin.toFixed(1) }}°</span>
+      <span class="text-sm font-medium text-blue-600/80 dark:text-blue-400/80">{{ displayMin }}°</span>
       <div class="h-8 w-px divider-faint" />
-      <span class="text-sm font-medium text-orange-600/80 dark:text-orange-400/80">{{ forecast.temperatureMax.toFixed(1) }}°</span>
+      <span class="text-sm font-medium text-orange-600/80 dark:text-orange-400/80">{{ displayMax }}°</span>
     </div>
   </div>
 </template>

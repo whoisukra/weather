@@ -18,7 +18,7 @@ export class WeatherController {
     const city = request.query.city || env.weatherCity
     const state = request.query.state || env.weatherState
 
-    const { current, forecast } = await this.weatherService.getCurrentWeather({
+    const { current, forecast, details, hourly } = await this.weatherService.getCurrentWeather({
       latitude,
       longitude,
     })
@@ -28,6 +28,8 @@ export class WeatherController {
       state,
       current,
       forecast,
+      details,
+      hourly,
     }
   }
 }

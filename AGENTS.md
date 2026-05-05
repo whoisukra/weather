@@ -10,6 +10,9 @@
 - **Config:** dotenv (.env files)
 - **Test:** Vitest
 - **Runner:** tsx (dev), node (prod)
+- **Cache:** In-memory (`src/shared/utils/cache.ts`) com TTL de 15min
+- **Rate Limiting:** `@fastify/rate-limit` (100 req/min)
+- **Static Files:** `@fastify/static` para servir o frontend em produção
 
 ### Frontend
 
@@ -19,6 +22,8 @@
 - **Icons:** Lucide Vue Next
 - **Font:** Inter (Google Fonts)
 - **Design:** Dark mode, glassmorphism, ambient glow
+- **PWA:** `vite-plugin-pwa` com cache de API (30min)
+- **Linting:** ESLint + Prettier
 
 ## Project Structure
 
@@ -26,11 +31,14 @@ Feature-based architecture. Cada módulo é autocontido com suas rotas, controll
 
 ```
 src/
-├── index.ts                          # Entry point, graceful shutdown
+├── index.ts                          # Entry point, graceful shutdown, static files
 ├── shared/
 │   ├── config/env.ts                 # Variáveis de ambiente centralizadas
-│   └── http/error-handler.ts         # Error handler global do Fastify
+│   ├── http/error-handler.ts         # Error handler global do Fastify
+│   └── utils/cache.ts                # Cache in-memory com TTL
 └── modules/
+    ├── health/
+    │   └── health.routes.ts          # Health check endpoint
     └── <feature>/
         ├── <feature>.routes.ts       # Registro de rotas com JSON Schema
         ├── <feature>.controller.ts   # Recebe request, chama service
@@ -128,15 +136,29 @@ Quando solicitado a criar uma nova feature:
 
 ## Scripts
 
+### Root
+
 | Script            | Description                    |
 | ----------------- | ------------------------------ |
 | `npm run dev`     | Dev server com hot reload      |
-| `npm run build`   | Compila TypeScript para dist/  |
+| `npm run build`   | Compila TypeScript + frontend  |
 | `npm start`       | Roda build em produção         |
 | `npm run typecheck` | Verifica tipos sem compilar  |
 | `npm test`        | Roda todos os testes           |
 | `npm run test:watch` | Testes em modo watch        |
 | `npm run test:coverage` | Testes com relatório de cobertura |
+| `npm run lint`    | ESLint no frontend             |
+| `npm run format`  | Prettier no frontend           |
+
+### Frontend
+
+| Script            | Description                    |
+| ----------------- | ------------------------------ |
+| `npm run dev`     | Vite dev server                |
+| `npm run build`   | vue-tsc + vite build (com PWA) |
+| `npm run preview` | Preview do build               |
+| `npm run lint`    | ESLint com auto-fix            |
+| `npm run format`  | Prettier format                |
 
 ## Frontend Conventions
 
@@ -193,3 +215,57 @@ front/src/
 - Usar `ref()` para estado reativo
 - Retornar `{ data, loading, error, fetch }` pattern
 - Proxy `/api` configurado no Vite → `http://localhost:3000`
+
+### Composables
+
+| Composable | Description |
+| ---------- | ----------- |
+| `useWeather()` | Fetch weather data from backend API |
+| `useGeocoding()` | Search cities via Open-Meteo geocoding |
+| `useTheme()` | Dark/light theme toggle with localStorage |
+| `useUnit()` | °C/°F toggle with localStorage persistence |
+| `useHistory()` | Recent city searches stored in localStorage |
+
+### Components
+
+| Component | Description |
+| --------- | ----------- |
+| `WeatherCard.vue` | Main display with temp, condition, details |
+| `WeatherDetails.vue` | Grid with humidity, wind, UV, pressure, sunrise/sunset |
+| `ForecastRow.vue` | Daily forecast row with weather icon |
+| `WeatherIcon.vue` | Dynamic SVG weather icons by WMO code |
+| `TemperatureChart.vue` | 12-hour temperature trend (SVG line chart) |
+| `CitySearch.vue` | Modal-based city search + geolocation |
+| `ThemeToggle.vue` | Dark/light theme switcher |
+| `UnitToggle.vue` | °C/°F unit switcher |
+| `LoadingSkeleton.vue` | Loading state placeholder |
+| `ErrorState.vue` | Error state display |
+
+## Docker
+
+Todos os arquivos Docker estão em `weather-docker/`.
+
+### Build and Run
+
+```bash
+cd weather-docker
+docker build -f Dockerfile -t gray-weather:latest ..
+docker run -p 3000:3000 gray-weather:latest
+```
+
+### Docker Compose
+
+```bash
+cd weather-docker
+docker compose up -d
+```
+
+Health check: `http://localhost:3000/health`
+
+## CI/CD
+
+GitHub Actions (`.github/workflows/ci.yml`):
+- Runs on push/PR to `main`
+- Tests on Node.js 22 and 24
+- Builds Docker image (`weather-docker/Dockerfile`) on main branch push
+- Runs health check inside container

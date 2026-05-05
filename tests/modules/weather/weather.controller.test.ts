@@ -9,10 +9,23 @@ describe('WeatherController', () => {
   const controller = new WeatherController(mockWeatherService as any)
 
   const mockServiceResponse = {
-    current: { time: '2026-05-05T14:30', temperature: 32.5, weatherCode: 0, unit: '°C' as const },
+    current: { time: '2026-05-05T14:30', temperature: 32.5, apparentTemperature: 35.2, weatherCode: 0, unit: '°C' as const },
     forecast: [
       { date: '2026-05-05', temperatureMin: 22, temperatureMax: 34, weatherCode: 0, unit: '°C' as const },
     ],
+    details: {
+      humidity: 65,
+      windSpeed: 12,
+      windDirection: 180,
+      uvIndex: 5.5,
+      sunrise: '2026-05-05T06:00',
+      sunset: '2026-05-05T18:00',
+      apparentTemperature: 35.2,
+      pressure: 1013,
+    },
+    hourly: [{ time: '2026-05-05T14:00', temperature: 30 }],
+    city: '',
+    state: '',
   }
 
   it('should return formatted weather response with default location', async () => {
@@ -23,10 +36,12 @@ describe('WeatherController', () => {
     expect(result).toEqual({
       city: 'Rio Branco',
       state: 'AC',
-      current: { time: '2026-05-05T14:30', temperature: 32.5, weatherCode: 0, unit: '°C' },
+      current: { time: '2026-05-05T14:30', temperature: 32.5, apparentTemperature: 35.2, weatherCode: 0, unit: '°C' },
       forecast: [
         { date: '2026-05-05', temperatureMin: 22, temperatureMax: 34, weatherCode: 0, unit: '°C' },
       ],
+      details: mockServiceResponse.details,
+      hourly: mockServiceResponse.hourly,
     })
 
     expect(mockWeatherService.getCurrentWeather).toHaveBeenCalledWith({

@@ -4,11 +4,14 @@ import WeatherCard from '@/components/WeatherCard.vue'
 import LoadingSkeleton from '@/components/LoadingSkeleton.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
+import UnitToggle from '@/components/UnitToggle.vue'
 import CitySearch from '@/components/CitySearch.vue'
 import type { CityResult } from '@/types/geocoding'
 import { useWeather } from '@/composables/useWeather'
+import { useHistory } from '@/composables/useHistory'
 
 const { data, loading, error, fetchWeather } = useWeather()
+const { history, add: addHistory } = useHistory()
 const geoError = ref<string | null>(null)
 
 onMounted(() => {
@@ -21,6 +24,21 @@ function handleCitySelect(city: CityResult) {
     long: city.longitude,
     city: city.name,
     state: city.state || city.country,
+  })
+  addHistory({
+    city: city.name,
+    state: city.state || city.country,
+    lat: city.latitude,
+    long: city.longitude,
+  })
+}
+
+function handleHistorySelect(entry: { city: string; state: string; lat: number; long: number }) {
+  fetchWeather({
+    lat: entry.lat,
+    long: entry.long,
+    city: entry.city,
+    state: entry.state,
   })
 }
 
@@ -52,7 +70,6 @@ function handleLocate() {
 
 <template>
   <div class="relative min-h-screen transition-colors duration-300">
-    <!-- Ambient glow -->
     <div class="pointer-events-none fixed inset-0 overflow-hidden bg-ambient">
       <div class="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[500px] rounded-full bg-indigo-500/20 blur-[120px]" />
       <div class="absolute bottom-0 right-0 h-[400px] w-[400px] rounded-full bg-blue-500/10 blur-[100px]" />
@@ -69,6 +86,7 @@ function handleLocate() {
           <span class="text-sm font-medium text-subtle">Gray Weather</span>
         </div>
         <div class="flex items-center gap-2">
+          <UnitToggle />
           <ThemeToggle />
           <button
             class="group toggle-bg flex items-center gap-2 rounded-lg px-4 py-2 text-sm text-subtle transition"
@@ -85,6 +103,22 @@ function handleLocate() {
       <div class="mx-auto mb-12 max-w-lg animate-fade-in-delay">
         <CitySearch @select="handleCitySelect" @locate="handleLocate" />
         <p v-if="geoError" class="mt-2 text-xs text-red-400">{{ geoError }}</p>
+
+        <div v-if="history.length > 0" class="mt-3">
+          <div class="mb-2 flex items-center justify-between">
+            <span class="text-xs font-medium text-subtle">Recentes</span>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button
+              v-for="(entry, i) in history"
+              :key="entry.lat + entry.long + entry.searchedAt"
+              class="toggle-bg rounded-lg px-3 py-1.5 text-xs text-subtle transition hover:text-gray-900 dark:hover:text-white"
+              @click="handleHistorySelect(entry)"
+            >
+              {{ entry.city }}{{ entry.state ? `, ${entry.state}` : '' }}
+            </button>
+          </div>
+        </div>
       </div>
 
       <LoadingSkeleton v-if="loading" />

@@ -8,7 +8,7 @@ const weatherController = new WeatherController(weatherService)
 export async function weatherRoutes(app: FastifyInstance) {
   app.get('/weather', {
     schema: {
-      description: 'Get current temperature and 3-day forecast',
+      description: 'Get current weather, forecast, and details',
       tags: ['weather'],
       querystring: {
         type: 'object',
@@ -30,6 +30,7 @@ export async function weatherRoutes(app: FastifyInstance) {
               properties: {
                 time: { type: 'string', format: 'date-time' },
                 temperature: { type: 'number' },
+                apparentTemperature: { type: 'number' },
                 weatherCode: { type: 'number' },
                 unit: { type: 'string' },
               },
@@ -44,6 +45,29 @@ export async function weatherRoutes(app: FastifyInstance) {
                   temperatureMax: { type: 'number' },
                   weatherCode: { type: 'number' },
                   unit: { type: 'string' },
+                },
+              },
+            },
+            details: {
+              type: 'object',
+              properties: {
+                humidity: { type: 'number' },
+                windSpeed: { type: 'number' },
+                windDirection: { type: 'number' },
+                uvIndex: { type: 'number' },
+                sunrise: { type: 'string' },
+                sunset: { type: 'string' },
+                apparentTemperature: { type: 'number' },
+                pressure: { type: 'number' },
+              },
+            },
+            hourly: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  time: { type: 'string' },
+                  temperature: { type: 'number' },
                 },
               },
             },

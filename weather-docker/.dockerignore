@@ -1,0 +1,13 @@
+node_modules
+dist
+front/dist
+front/node_modules
+*.log
+.env
+.env.*
+!.env.example
+tests
+coverage
+*.md
+!README.md
+.DS_Store
