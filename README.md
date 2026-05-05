@@ -1,28 +1,41 @@
-# oc-sample
+# Gray Weather
 
-Fastify weather API with Vue 3 frontend. Monorepo with backend and frontend serving weather data using the Open-Meteo API.
+Previsão do tempo elegante e moderna com Fastify + Vue 3 + Tailwind CSS.
+
+## Features
+
+- Busca por cidade com modal e geolocalização
+- Condições climáticas (WMO codes) com ícones SVG
+- Detalhes: umidade, vento, UV, pressão, nascer/pôr do sol, sensação térmica
+- Gráfico de tendência de temperatura (12h)
+- Toggle °C/°F com persistência
+- Histórico de cidades recentes (localStorage)
+- Dark/Light mode com glassmorphism
+- PWA (instalável + cache offline)
+- Rate limiting (100 req/min) e cache no backend (15min)
+- Health check endpoint
 
 ## Requirements
 
-- Node.js >= 18
-- npm or your preferred package manager
+- Node.js >= 22
+- npm
 
 ## Getting Started
 
-1. Clone and install dependencies:
+1. Clone e instale as dependências:
 
 ```bash
 npm install
 cd front && npm install && cd ..
 ```
 
-2. Set up environment variables:
+2. Configure as variáveis de ambiente:
 
 ```bash
 cp .env.example .env
 ```
 
-3. Run both frontend and backend:
+3. Rode o projeto:
 
 ```bash
 npm run dev
@@ -33,35 +46,37 @@ npm run dev
 
 ## Available Scripts
 
-| Script                 | Description                           |
-| ---------------------- | ------------------------------------- |
-| `npm run dev`          | Run frontend and backend concurrently |
-| `npm run dev:server`   | Backend only with hot reload          |
-| `npm run dev:web`      | Frontend only (Vite)                  |
-| `npm run build`        | Build both frontend and backend       |
-| `npm run build:server` | Compile TypeScript to `dist/`         |
-| `npm run build:web`    | Build frontend to `front/dist/`       |
-| `npm start`            | Run production build                  |
-| `npm run typecheck`    | Type-check both projects              |
-| `npm test`             | Run backend tests                     |
-| `npm run test:watch`   | Run tests in watch mode               |
-| `npm run test:coverage`| Run tests with coverage report        |
+### Root
+
+| Script | Description |
+| ------ | ----------- |
+| `npm run dev` | Frontend + backend em dev |
+| `npm run dev:server` | Backend com hot reload |
+| `npm run dev:web` | Frontend (Vite) |
+| `npm run build` | Build de ambos |
+| `npm start` | Produção (single process) |
+| `npm run typecheck` | Type-check |
+| `npm test` | Testes |
+| `npm run lint` | ESLint no frontend |
+| `npm run format` | Prettier no frontend |
 
 ## API Endpoints
 
 ### GET /weather
 
-Returns current temperature and 3-day forecast for Rio Branco, AC.
+Retorna temperatura atual, previsão 3 dias e detalhes meteorológicos.
 
 **Response:**
 
 ```json
 {
-  "city": "Rio Branco",
-  "state": "AC",
+  "city": "São Paulo",
+  "state": "SP",
   "current": {
     "time": "2026-05-05T14:30",
     "temperature": 32.5,
+    "apparentTemperature": 35.2,
+    "weatherCode": 0,
     "unit": "°C"
   },
   "forecast": [
@@ -69,73 +84,112 @@ Returns current temperature and 3-day forecast for Rio Branco, AC.
       "date": "2026-05-05",
       "temperatureMin": 22,
       "temperatureMax": 34,
+      "weatherCode": 0,
       "unit": "°C"
     }
+  ],
+  "details": {
+    "humidity": 65,
+    "windSpeed": 12,
+    "windDirection": 180,
+    "uvIndex": 5.5,
+    "sunrise": "2026-05-05T06:00",
+    "sunset": "2026-05-05T18:00",
+    "apparentTemperature": 35.2,
+    "pressure": 1013
+  },
+  "hourly": [
+    { "time": "2026-05-05T14:00", "temperature": 30 }
   ]
 }
 ```
 
-**Error responses:**
+### GET /health
 
-- `400` - Validation error
-- `500` - Internal server error
-- `502` - Weather service unavailable
+Health check para monitoramento.
+
+**Response:**
+
+```json
+{
+  "status": "ok",
+  "uptime": 123.45,
+  "timestamp": "2026-05-05T14:30:00.000Z"
+}
+```
 
 ## Environment Variables
 
-| Variable                 | Default                                      | Description                        |
-| ------------------------ | -------------------------------------------- | ---------------------------------- |
-| `PORT`                   | `3000`                                       | Server port                        |
-| `NODE_ENV`               | `development`                                | Environment (development/production)|
-| `OPEN_METEO_API_URL`     | `https://api.open-meteo.com/v1/forecast`     | Open-Meteo API endpoint            |
-| `WEATHER_CITY`           | `Rio Branco`                                 | City name                          |
-| `WEATHER_STATE`          | `AC`                                         | State abbreviation                 |
-| `WEATHER_LATITUDE`       | `-9.97`                                      | Location latitude                  |
-| `WEATHER_LONGITUDE`      | `-67.82`                                     | Location longitude                 |
-| `WEATHER_FORECAST_DAYS`  | `3`                                          | Number of forecast days            |
-| `WEATHER_TIMEZONE`       | `America/Rio_Branco`                         | Timezone for the location          |
+| Variable | Default | Description |
+| -------- | ------- | ----------- |
+| `PORT` | `3000` | Porta do servidor |
+| `NODE_ENV` | `development` | Ambiente |
+| `OPEN_METEO_API_URL` | `https://api.open-meteo.com/v1/forecast` | Endpoint da API |
+| `WEATHER_CITY` | `Rio Branco` | Cidade padrão |
+| `WEATHER_STATE` | `AC` | Estado padrão |
+| `WEATHER_LATITUDE` | `-9.97` | Latitude padrão |
+| `WEATHER_LONGITUDE` | `-67.82` | Longitude padrão |
+| `WEATHER_FORECAST_DAYS` | `3` | Dias de previsão |
+| `WEATHER_TIMEZONE` | `America/Rio_Branco` | Timezone |
 
 ## Project Structure
 
 ```
-├── src/                          # Backend (Fastify)
-│   ├── index.ts                  # Entry point
-│   ├── shared/                   # Shared utilities
+├── src/                              # Backend (Fastify)
+│   ├── index.ts                      # Entry point + static files
+│   ├── shared/
 │   │   ├── config/env.ts
-│   │   └── http/error-handler.ts
+│   │   ├── http/error-handler.ts
+│   │   └── utils/cache.ts            # Cache in-memory
 │   └── modules/
-│       └── weather/
-│           ├── weather.routes.ts
-│           ├── weather.controller.ts
-│           ├── weather.service.ts
-│           ├── weather.types.ts
-│           └── weather.errors.ts
+│       ├── health/health.routes.ts   # Health check
+│       ├── weather/
+│       └── geocoding/
 │
-├── front/                        # Frontend (Vue 3 + Tailwind)
+├── front/                            # Frontend (Vue 3 + Tailwind + PWA)
 │   ├── src/
 │   │   ├── components/
 │   │   │   ├── WeatherCard.vue
-│   │   │   └── ForecastRow.vue
+│   │   │   ├── WeatherDetails.vue
+│   │   │   ├── ForecastRow.vue
+│   │   │   ├── TemperatureChart.vue
+│   │   │   ├── CitySearch.vue
+│   │   │   ├── ThemeToggle.vue
+│   │   │   └── UnitToggle.vue
 │   │   ├── composables/
-│   │   │   └── useWeather.ts
-│   │   ├── types/
-│   │   │   └── weather.ts
-│   │   ├── App.vue
-│   │   ├── main.ts
-│   │   └── index.css
-│   └── index.html
+│   │   │   ├── useWeather.ts
+│   │   │   ├── useGeocoding.ts
+│   │   │   ├── useUnit.ts
+│   │   │   └── useHistory.ts
+│   │   ├── types/weather.ts
+│   │   ├── utils/weatherCode.ts
+│   │   └── App.vue
+│   └── vite.config.ts                # Com vite-plugin-pwa
 │
-├── tests/                        # Backend tests
-│   ├── helper.ts
-│   └── modules/weather/
-│
-├── package.json                  # Root package (orchestration)
+├── tests/                            # Backend tests (Vitest)
+├── weather-docker/
+│   ├── Dockerfile
+│   ├── docker-compose.yml
+│   └── .dockerignore
 └── README.md
 ```
 
+## Docker
+
+Todos os arquivos Docker estão em `weather-docker/`:
+
+```bash
+cd weather-docker
+docker compose up -d
+```
+
+O container roda backend + frontend estático na porta 3000.
+
+Health check: `http://localhost:3000/health`
+
 ## Architecture
 
-Monorepo with feature-based backend and Vue 3 frontend. The backend serves a REST API while the frontend consumes it via Vite dev proxy (`/api` → `http://localhost:3000`).
+Monorepo com backend feature-based e frontend Vue 3. Em produção, o Fastify serve o frontend estático via `@fastify/static` (single process).
 
 ## License
 
