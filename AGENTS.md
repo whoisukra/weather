@@ -261,11 +261,3 @@ docker compose up -d
 ```
 
 Health check: `http://localhost:3000/health`
-
-## CI/CD
-
-GitHub Actions (`.github/workflows/ci.yml`):
-- Runs on push/PR to `main`
-- Tests on Node.js 22 and 24
-- Builds Docker image (`weather-docker/Dockerfile`) on main branch push
-- Runs health check inside container
