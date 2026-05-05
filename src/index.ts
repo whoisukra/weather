@@ -2,6 +2,7 @@ import Fastify from 'fastify'
 import { env } from './shared/config/env.js'
 import { setErrorHandler } from './shared/http/error-handler.js'
 import { weatherRoutes } from './modules/weather/weather.routes.js'
+import { geocodingRoutes } from './modules/geocoding/geocoding.routes.js'
 
 const server = Fastify({
   logger: {
@@ -11,6 +12,7 @@ const server = Fastify({
 
 setErrorHandler(server)
 
+server.register(geocodingRoutes)
 server.register(weatherRoutes)
 
 const start = async () => {

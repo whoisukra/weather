@@ -8,11 +8,12 @@ describe('WeatherService', () => {
 
   const mockCoordinate = { latitude: -9.97, longitude: -67.82 }
   const mockApiResponse = {
-    current: { time: '2026-05-05T14:30', temperature_2m: 32.5 },
+    current: { time: '2026-05-05T14:30', temperature_2m: 32.5, weathercode: 0 },
     daily: {
-      time: ['2026-05-05', '2026-05-06', '2026-05-07'],
+      time: ['2027-01-01', '2027-01-02', '2027-01-03'],
       temperature_2m_min: [22, 21, 23],
       temperature_2m_max: [34, 33, 35],
+      weathercode: [0, 1, 3],
     },
   }
 
@@ -30,11 +31,11 @@ describe('WeatherService', () => {
     const result = await service.getCurrentWeather(mockCoordinate)
 
     expect(result).toEqual({
-      current: { time: '2026-05-05T14:30', temperature: 32.5, unit: '°C' },
+      current: { time: '2026-05-05T14:30', temperature: 32.5, weatherCode: 0, unit: '°C' },
       forecast: [
-        { date: '2026-05-05', temperatureMin: 22, temperatureMax: 34, unit: '°C' },
-        { date: '2026-05-06', temperatureMin: 21, temperatureMax: 33, unit: '°C' },
-        { date: '2026-05-07', temperatureMin: 23, temperatureMax: 35, unit: '°C' },
+        { date: '2027-01-01', temperatureMin: 22, temperatureMax: 34, weatherCode: 0, unit: '°C' },
+        { date: '2027-01-02', temperatureMin: 21, temperatureMax: 33, weatherCode: 1, unit: '°C' },
+        { date: '2027-01-03', temperatureMin: 23, temperatureMax: 35, weatherCode: 3, unit: '°C' },
       ],
     })
   })
@@ -75,8 +76,8 @@ describe('WeatherService', () => {
     const expectedParams = new URLSearchParams({
       latitude: mockCoordinate.latitude.toString(),
       longitude: mockCoordinate.longitude.toString(),
-      current: 'temperature_2m',
-      daily: 'temperature_2m_min,temperature_2m_max',
+      current: 'temperature_2m,weathercode',
+      daily: 'temperature_2m_min,temperature_2m_max,weathercode',
       forecast_days: env.weatherForecastDays.toString(),
       timezone: env.weatherTimezone,
     })

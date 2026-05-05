@@ -8,8 +8,17 @@ const weatherController = new WeatherController(weatherService)
 export async function weatherRoutes(app: FastifyInstance) {
   app.get('/weather', {
     schema: {
-      description: 'Get current temperature and 3-day forecast for Rio Branco, AC',
+      description: 'Get current temperature and 3-day forecast',
       tags: ['weather'],
+      querystring: {
+        type: 'object',
+        properties: {
+          lat: { type: 'string', pattern: '^-?\\d+\\.?\\d*$' },
+          long: { type: 'string', pattern: '^-?\\d+\\.?\\d*$' },
+          city: { type: 'string' },
+          state: { type: 'string' },
+        },
+      },
       response: {
         200: {
           type: 'object',
@@ -21,6 +30,7 @@ export async function weatherRoutes(app: FastifyInstance) {
               properties: {
                 time: { type: 'string', format: 'date-time' },
                 temperature: { type: 'number' },
+                weatherCode: { type: 'number' },
                 unit: { type: 'string' },
               },
             },
@@ -32,6 +42,7 @@ export async function weatherRoutes(app: FastifyInstance) {
                   date: { type: 'string', format: 'date' },
                   temperatureMin: { type: 'number' },
                   temperatureMax: { type: 'number' },
+                  weatherCode: { type: 'number' },
                   unit: { type: 'string' },
                 },
               },

@@ -6,11 +6,13 @@ interface OpenMeteoResponse {
   current: {
     time: string
     temperature_2m: number
+    weathercode: number
   }
   daily: {
     time: string[]
     temperature_2m_min: number[]
     temperature_2m_max: number[]
+    weathercode: number[]
   }
 }
 
@@ -19,8 +21,8 @@ export class WeatherService {
     const params = new URLSearchParams({
       latitude: coordinate.latitude.toString(),
       longitude: coordinate.longitude.toString(),
-      current: 'temperature_2m',
-      daily: 'temperature_2m_min,temperature_2m_max',
+      current: 'temperature_2m,weathercode',
+      daily: 'temperature_2m_min,temperature_2m_max,weathercode',
       forecast_days: env.weatherForecastDays.toString(),
       timezone: env.weatherTimezone,
     })
@@ -43,15 +45,22 @@ export class WeatherService {
     const current: CurrentWeather = {
       time: data.current.time,
       temperature: data.current.temperature_2m,
+      weatherCode: data.current.weathercode,
       unit: '°C',
     }
 
-    const forecast: DailyForecast[] = data.daily.time.map((time, index) => ({
-      date: time,
-      temperatureMin: data.daily.temperature_2m_min[index]!,
-      temperatureMax: data.daily.temperature_2m_max[index]!,
-      unit: '°C',
-    }))
+    const today = new Date().toISOString().split('T')[0]!
+
+    const forecast: DailyForecast[] = data.daily.time
+      .map((time, index) => ({
+        date: time,
+        temperatureMin: data.daily.temperature_2m_min[index]!,
+        temperatureMax: data.daily.temperature_2m_max[index]!,
+        weatherCode: data.daily.weathercode[index]!,
+        unit: '°C' as const,
+      }))
+      .filter((day) => day.date >= today)
+      .slice(0, env.weatherForecastDays)
 
     return { current, forecast }
   }

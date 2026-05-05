@@ -2,12 +2,23 @@
 
 ## Tech Stack
 
+### Backend
+
 - **Runtime:** Node.js (ESM)
 - **Framework:** Fastify
 - **Language:** TypeScript (strict mode)
 - **Config:** dotenv (.env files)
 - **Test:** Vitest
 - **Runner:** tsx (dev), node (prod)
+
+### Frontend
+
+- **Framework:** Vue 3 (Composition API + `<script setup>`)
+- **Build:** Vite
+- **Styling:** Tailwind CSS
+- **Icons:** Lucide Vue Next
+- **Font:** Inter (Google Fonts)
+- **Design:** Dark mode, glassmorphism, ambient glow
 
 ## Project Structure
 
@@ -126,3 +137,59 @@ Quando solicitado a criar uma nova feature:
 | `npm test`        | Roda todos os testes           |
 | `npm run test:watch` | Testes em modo watch        |
 | `npm run test:coverage` | Testes com relatório de cobertura |
+
+## Frontend Conventions
+
+### Structure
+
+```
+front/src/
+├── components/          # Componentes Vue reutilizáveis
+├── composables/         # Composition API hooks (useXxx)
+├── types/              # TypeScript interfaces
+├── App.vue             # Root component
+├── main.ts             # Entry point
+└── index.css           # Tailwind + design tokens
+```
+
+### Design System
+
+- **Dual mode** — dark (default) e light com toggle
+- **Dark mode** — fundo `#0a0a0a` com ambient glow
+- **Light mode** — fundo `gray-50` com cards brancos e sombras
+- **Glassmorphism** — usar classes `.glass` e `.glass-strong`
+- **Gradient text** — usar `.text-gradient` e `.text-gradient-blue`
+- **Animations** — `.animate-fade-in`, `.animate-slide-up` com delays escalonados
+- **Border radius** — `rounded-2xl` (16px) para cards, `rounded-3xl` (24px) para hero
+- **Spacing** — `space-y-*` para vertical gap consistente
+- **Theme persistence** — localStorage via `useTheme()`
+
+### Theme Utilities
+
+| Class | Dark Mode | Light Mode |
+| ----- | --------- | ---------- |
+| `.card-bg` | `bg-white/[0.05]` + border | `bg-white` + border + shadow |
+| `.row-bg` | `bg-white/[0.03]` + hover | `bg-white` + hover |
+| `.text-subtle` | `text-white/50` | `text-gray-500` |
+| `.text-muted` | `text-white/30` | `text-gray-400` |
+| `.text-faint` | `text-white/20` | `text-gray-300` |
+| `.divider` | `border-white/[0.08]` | `border-gray-200` |
+| `.icon-bg` | `bg-white/[0.06]` | `bg-gray-100` |
+| `.toggle-bg` | `border-white/[0.08]` | `border-black/[0.08]` |
+| `.bg-ambient` | `hidden` (dark: block) | `hidden` |
+
+### Component Rules
+
+- Sempre usar `<script setup lang="ts">`
+- Props tipadas com `defineProps<{ ... }>()`
+- Emit tipado com `defineEmits<{ ... }>()`
+- Usar Lucide icons para ícones inline
+- Loading states com `LoadingSkeleton.vue`
+- Error states com `ErrorState.vue`
+
+### API Calls
+
+- Sempre via composables (`useXxx`)
+- Usar `ref()` para estado reativo
+- Retornar `{ data, loading, error, fetch }` pattern
+- Proxy `/api` configurado no Vite → `http://localhost:3000`

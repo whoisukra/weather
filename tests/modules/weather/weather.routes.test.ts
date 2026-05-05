@@ -6,11 +6,12 @@ describe('Weather Routes', () => {
   let app: Fastify.FastifyInstance
 
   const mockApiResponse = {
-    current: { time: '2026-05-05T14:30', temperature_2m: 32.5 },
+    current: { time: '2026-05-05T14:30', temperature_2m: 32.5, weathercode: 0 },
     daily: {
-      time: ['2026-05-05', '2026-05-06', '2026-05-07'],
+      time: ['2027-01-01', '2027-01-02', '2027-01-03'],
       temperature_2m_min: [22, 21, 23],
       temperature_2m_max: [34, 33, 35],
+      weathercode: [0, 1, 3],
     },
   }
 

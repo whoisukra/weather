@@ -1,6 +1,6 @@
 # oc-sample
 
-Fastify weather API that provides current temperature and forecasts using the Open-Meteo API.
+Fastify weather API with Vue 3 frontend. Monorepo with backend and frontend serving weather data using the Open-Meteo API.
 
 ## Requirements
 
@@ -13,6 +13,7 @@ Fastify weather API that provides current temperature and forecasts using the Op
 
 ```bash
 npm install
+cd front && npm install && cd ..
 ```
 
 2. Set up environment variables:
@@ -21,23 +22,28 @@ npm install
 cp .env.example .env
 ```
 
-3. Run the development server:
+3. Run both frontend and backend:
 
 ```bash
 npm run dev
 ```
 
-The server will be available at `http://localhost:3000`.
+- **Frontend:** `http://localhost:5173` (Vite)
+- **Backend API:** `http://localhost:3000` (Fastify)
 
 ## Available Scripts
 
 | Script                 | Description                           |
 | ---------------------- | ------------------------------------- |
-| `npm run dev`          | Dev server with hot reload            |
-| `npm run build`        | Compile TypeScript to `dist/`         |
+| `npm run dev`          | Run frontend and backend concurrently |
+| `npm run dev:server`   | Backend only with hot reload          |
+| `npm run dev:web`      | Frontend only (Vite)                  |
+| `npm run build`        | Build both frontend and backend       |
+| `npm run build:server` | Compile TypeScript to `dist/`         |
+| `npm run build:web`    | Build frontend to `front/dist/`       |
 | `npm start`            | Run production build                  |
-| `npm run typecheck`    | Type-check without emitting           |
-| `npm test`             | Run all tests                         |
+| `npm run typecheck`    | Type-check both projects              |
+| `npm test`             | Run backend tests                     |
 | `npm run test:watch`   | Run tests in watch mode               |
 | `npm run test:coverage`| Run tests with coverage report        |
 
@@ -92,31 +98,44 @@ Returns current temperature and 3-day forecast for Rio Branco, AC.
 ## Project Structure
 
 ```
-src/
-├── index.ts                          # Entry point, graceful shutdown
-├── shared/
-│   ├── config/env.ts                 # Environment variables
-│   └── http/error-handler.ts         # Global error handler
-└── modules/
-    └── weather/
-        ├── weather.routes.ts         # Route registration with JSON Schema
-        ├── weather.controller.ts     # Request handling
-        ├── weather.service.ts        # Business logic & API calls
-        ├── weather.types.ts          # TypeScript interfaces
-        └── weather.errors.ts         # Custom errors
-
-tests/
-├── helper.ts                         # Fastify app factory for tests
-└── modules/
-    └── weather/
-        ├── weather.service.test.ts   # Service unit tests
-        ├── weather.controller.test.ts# Controller unit tests
-        └── weather.routes.test.ts    # Integration tests
+├── src/                          # Backend (Fastify)
+│   ├── index.ts                  # Entry point
+│   ├── shared/                   # Shared utilities
+│   │   ├── config/env.ts
+│   │   └── http/error-handler.ts
+│   └── modules/
+│       └── weather/
+│           ├── weather.routes.ts
+│           ├── weather.controller.ts
+│           ├── weather.service.ts
+│           ├── weather.types.ts
+│           └── weather.errors.ts
+│
+├── front/                        # Frontend (Vue 3 + Tailwind)
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── WeatherCard.vue
+│   │   │   └── ForecastRow.vue
+│   │   ├── composables/
+│   │   │   └── useWeather.ts
+│   │   ├── types/
+│   │   │   └── weather.ts
+│   │   ├── App.vue
+│   │   ├── main.ts
+│   │   └── index.css
+│   └── index.html
+│
+├── tests/                        # Backend tests
+│   ├── helper.ts
+│   └── modules/weather/
+│
+├── package.json                  # Root package (orchestration)
+└── README.md
 ```
 
 ## Architecture
 
-Feature-based modular architecture. Each module in `src/modules/` is self-contained with its own routes, controller, service, types, and errors. Shared utilities live in `src/shared/`.
+Monorepo with feature-based backend and Vue 3 frontend. The backend serves a REST API while the frontend consumes it via Vite dev proxy (`/api` → `http://localhost:3000`).
 
 ## License
 

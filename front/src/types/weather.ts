@@ -1,8 +1,3 @@
-export interface Coordinate {
-  latitude: number
-  longitude: number
-}
-
 export interface CurrentWeather {
   time: string
   temperature: number

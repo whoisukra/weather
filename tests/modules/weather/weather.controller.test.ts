@@ -9,23 +9,23 @@ describe('WeatherController', () => {
   const controller = new WeatherController(mockWeatherService as any)
 
   const mockServiceResponse = {
-    current: { time: '2026-05-05T14:30', temperature: 32.5, unit: '°C' as const },
+    current: { time: '2026-05-05T14:30', temperature: 32.5, weatherCode: 0, unit: '°C' as const },
     forecast: [
-      { date: '2026-05-05', temperatureMin: 22, temperatureMax: 34, unit: '°C' as const },
+      { date: '2026-05-05', temperatureMin: 22, temperatureMax: 34, weatherCode: 0, unit: '°C' as const },
     ],
   }
 
-  it('should return formatted weather response', async () => {
+  it('should return formatted weather response with default location', async () => {
     mockWeatherService.getCurrentWeather.mockResolvedValue(mockServiceResponse)
 
-    const result = await controller.handle()
+    const result = await controller.handle({ query: {} } as any)
 
     expect(result).toEqual({
       city: 'Rio Branco',
       state: 'AC',
-      current: { time: '2026-05-05T14:30', temperature: 32.5, unit: '°C' },
+      current: { time: '2026-05-05T14:30', temperature: 32.5, weatherCode: 0, unit: '°C' },
       forecast: [
-        { date: '2026-05-05', temperatureMin: 22, temperatureMax: 34, unit: '°C' },
+        { date: '2026-05-05', temperatureMin: 22, temperatureMax: 34, weatherCode: 0, unit: '°C' },
       ],
     })
 
@@ -35,10 +35,23 @@ describe('WeatherController', () => {
     })
   })
 
+  it('should use custom coordinates when provided', async () => {
+    mockWeatherService.getCurrentWeather.mockResolvedValue(mockServiceResponse)
+
+    await controller.handle({
+      query: { lat: '-23.55', long: '-46.63', city: 'São Paulo', state: 'SP' },
+    } as any)
+
+    expect(mockWeatherService.getCurrentWeather).toHaveBeenCalledWith({
+      latitude: -23.55,
+      longitude: -46.63,
+    })
+  })
+
   it('should propagate service errors', async () => {
     const testError = new Error('Service error')
     mockWeatherService.getCurrentWeather.mockRejectedValue(testError)
 
-    await expect(controller.handle()).rejects.toThrow(testError)
+    await expect(controller.handle({ query: {} } as any)).rejects.toThrow(testError)
   })
 })
