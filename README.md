@@ -197,6 +197,16 @@ Health check: `http://localhost:3000/health`
 
 Monorepo com backend feature-based e frontend Vue 3. Em produção, o Fastify serve o frontend estático via `@fastify/static` (single process).
 
+## Sobre o Projeto
+
+Este projeto foi desenvolvido em **2 horas** utilizando **opencode** com o modelo de IA **big-pickle**, demonstrando agilidade no desenvolvimento fullstack.
+
+**Tecnologias e APIs:**
+- **Open-Meteo API** — consumida para dados meteorológicos em tempo real (sem chave de API necessária)
+- **Fastify** (backend) + **Vue 3** (frontend) + **Remotion** (vídeo demo)
+
+> Este é um projeto de **portfólio**, sem fins comerciais. Criado para demonstrar boas práticas de desenvolvimento, arquitetura feature-based e uso de IA assistida.
+
 ## License
 
 ISC
