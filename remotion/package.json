@@ -1,0 +1,22 @@
+{
+  "name": "weather-app-video",
+  "version": "1.0.0",
+  "description": "Video presentation of Weather App",
+  "scripts": {
+    "start": "remotion studio",
+    "build": "remotion render src/index.tsx WeatherAppVideo out/video.mp4"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.457",
+    "@remotion/renderer": "^4.0.457",
+    "playwright": "^1.59.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "^4.0.457"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.1",
+    "@types/react-dom": "18.3.1",
+    "typescript": "5.0.3"
+  }
+}
