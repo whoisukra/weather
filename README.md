@@ -4,9 +4,9 @@ Previsão do tempo elegante e moderna com Fastify + Vue 3 + Tailwind CSS.
 
 ## Demo
 
-![Demo Video](media/app-demo-video.mp4)
+![Demo Video](media/app-demo-video-compressed.mp4)
 
-> Assista ao vídeo de demonstração do Gray Weather: [app-demo-video.mp4](media/app-demo-video.mp4)
+> Assista ao vídeo de demonstração do Gray Weather: [app-demo-video-compressed.mp4](media/app-demo-video-compressed.mp4)
 
 ## Features
 
